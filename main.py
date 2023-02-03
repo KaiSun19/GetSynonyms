@@ -1,8 +1,13 @@
 from flask import Flask, jsonify, request
 import yake
 import pickle
+import gensim.downloader as api
 
-model = pickle.load(open('word_embed_model.pkl', 'rb'))
+model = None
+
+def load_model():
+    global model
+    model =  api.load("glove-wiki-gigaword-100")
 
 def convert_to_uni(phrase):
   if ' ' in phrase:
@@ -59,4 +64,5 @@ def index():
     return 'OK'
 
 if __name__ == '__main__':
+    load_model()
     app.run(host="0.0.0.0", port=8080)
