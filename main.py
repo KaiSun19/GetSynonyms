@@ -50,8 +50,8 @@ def add_synonyms(word_list,limit):
 
 app = Flask(__name__)
 
-@app.route('/',methods = ['GET','POST'])
-def index():
+@app.route('/predict',methods = ['GET','POST'])
+def get_predictions():
     if request.method == 'POST':
         try:
             text = request.json['text']
