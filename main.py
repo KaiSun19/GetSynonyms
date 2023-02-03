@@ -1,12 +1,8 @@
 from flask import Flask, jsonify, request
-from rake_nltk import Rake
+import yake
 import pickle
-import nltk
-import gensim.downloader as api
 
-r = Rake()
-model = api.load("glove-wiki-gigaword-100")
-nltk.download('popular')
+model = pickle.load(open('word_embed_model.pkl', 'rb'))
 
 def convert_to_uni(phrase):
   if ' ' in phrase:
@@ -26,11 +22,11 @@ def flatten_list(array):
 
 
 def get_initial_query_keywords(text):
-  r.extract_keywords_from_text(text)
-  keywords = r.get_ranked_phrases()
+  keyword_model = yake.KeywordExtractor(dedupLim=1)
+  keywords = keyword_model.extract_keywords(text)
   uni_keywords = []
   for phrase in keywords:
-    uni_keywords.append(convert_to_uni(phrase))
+    uni_keywords.append(convert_to_uni(phrase[1]))
   uni_keywords = flatten_list(uni_keywords)
   return uni_keywords
 
@@ -55,7 +51,7 @@ def index():
         try:
             text = request.json['text']
             tokens = get_initial_query_keywords(text)
-            prediction = add_synonyms(tokens,1)
+            prediction = add_synonyms(tokens,2)
             data = {'synonyms' : prediction}
             return data
         except TypeError as e:
