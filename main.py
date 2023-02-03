@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import yake
 import pickle
 import gensim.downloader as api
+from flask_cors import CORS
 
 model = None
 
@@ -49,6 +50,7 @@ def add_synonyms(word_list,limit):
   return flatten_list(all_synonyms)
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/predict',methods = ['GET','POST'])
 def get_predictions():
