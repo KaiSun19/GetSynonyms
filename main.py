@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 import yake
 import pickle
-import gensim.downloader as api
+# import gensim.downloader as api
 from flask_cors import CORS
 import random
 import pandas as pd
@@ -15,10 +15,11 @@ model = None
 doc2VecModel = None
 PromptsDatabase = None
 
+nltk.download("stopwords")
 
 def load_model():
     global model
-    model =  api.load("glove-wiki-gigaword-50")
+    model =  pickle.load(open('word_embed_model.pkl', 'rb'))
     print('word embed model loaded')
 
 def load_word2Vec():
