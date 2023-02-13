@@ -127,7 +127,7 @@ def get_predictions():
             prompts = get_prompts(keywords,0.5,0.6,3)
             data = {'prompts' : prompts}
             return data
-        except TypeError as e:
+        except Exception as e:
             result = jsonify({'error': str(e)})
             return {'prompts' : 'Words not in vocabulary ! Please try again '}
     return 'OK'
