@@ -129,7 +129,7 @@ def get_predictions():
             return data
         except Exception as e:
             result = jsonify({'error': str(e)})
-            return {'prompts' : 'Words not in vocabulary ! Please try again '}
+            return result
     return 'OK'
 
 # @app.route('/prompts',methods = ['GET','POST'])
