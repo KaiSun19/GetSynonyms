@@ -124,7 +124,7 @@ def get_predictions():
             keywords = add_synonyms(tokens,2)
             keywords = clean_string(' '.join(keywords))
             print(keywords)
-            prompts = get_prompts(keywords,0.5,0.6,3)
+            prompts = get_prompts(keywords,0.4,0.7,2)
             data = {'prompts' : prompts}
             return data
         except Exception as e:
