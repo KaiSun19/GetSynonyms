@@ -110,7 +110,10 @@ def get_prompts(keywords,l_bound,u_bound,n_prompts):
       random_chosen_scores.append(random_score)
   prompts = []
   for score in random_chosen_scores:
-    prompts.append(PromptsDatabase.iloc[score[0]]['Summarized Text'])
+        promptText = PromptsDatabase.iloc[score[0]]['Summarized Text']
+        if len(promptText.split()) > 100:
+            promptText = ''.join(promptText.split()[:100])
+        prompts.append(promptText)
   return prompts
 
 app = Flask(__name__)
@@ -125,7 +128,7 @@ def get_predictions():
             keywords = add_synonyms(tokens,2)
             keywords = clean_string(' '.join(keywords))
             print(keywords)
-            prompts = get_prompts(keywords,0.4,0.7,2)
+            prompts = get_prompts(keywords,0.4,0.7,5)
             data = {'prompts' : prompts}
             return data
         except Exception as e:
