@@ -10,6 +10,7 @@ import nltk
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
 import string
+from scipy import spatial
 
 model = None
 doc2VecModel = None
@@ -130,6 +131,25 @@ def get_predictions():
         except Exception as e:
             result = jsonify({'error': str(e)})
             return result
+    return 'OK'
+
+@app.route('/ratings',methods = ['GET','POST'])
+def get_ratings():
+    if request.method == 'POST':
+        try:
+            data = request.json['data']
+            query_keywords = add_synonyms(clean_string(data[0]),1)
+            query_vector = doc2VecModel.infer_vector(query_keywords)
+            ideas = data[1:]
+            distance_list = []
+            for i in range(len(ideas)):
+              cleaned_idea = add_synonyms(clean_string(ideas[i]),1)
+              ideas_vector = doc2VecModel.infer_vector(cleaned_idea)
+              distance_list.append(spatial.distance.cosine(query_vector, ideas_vector))
+            data = {'ratings' : distance_list}
+            return data
+        except TypeError as e:
+            result = jsonify({'error': str(e)})
     return 'OK'
 
 # @app.route('/prompts',methods = ['GET','POST'])
