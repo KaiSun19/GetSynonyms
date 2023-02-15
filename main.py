@@ -112,7 +112,7 @@ def get_prompts(keywords,l_bound,u_bound,n_prompts):
   for score in random_chosen_scores:
         promptText = PromptsDatabase.iloc[score[0]]['Summarized Text']
         if len(promptText.split()) > 100:
-            promptText = ''.join(promptText.split()[:100])
+            promptText = ' '.join(promptText.split()[:100])
         prompts.append(promptText)
   return prompts
 
