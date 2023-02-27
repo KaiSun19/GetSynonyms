@@ -146,9 +146,12 @@ def get_ratings():
             ideas = data[1:]
             distance_list = []
             for i in range(len(ideas)):
-              cleaned_idea = add_synonyms(clean_string(ideas[i]),1)
-              ideas_vector = doc2VecModel.infer_vector(cleaned_idea)
-              distance_list.append(spatial.distance.cosine(query_vector, ideas_vector))
+              try:
+                  cleaned_idea = add_synonyms(clean_string(ideas[i]),1)
+                  ideas_vector = doc2VecModel.infer_vector(cleaned_idea)
+                  distance_list.append(spatial.distance.cosine(query_vector, ideas_vector))
+              except KeyError:
+                distance_list.append(random.random())
             data = {'ratings' : distance_list}
             return data
         except TypeError as e:
