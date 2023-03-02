@@ -11,6 +11,7 @@ from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
 import string
 from scipy import spatial
+from statistics import mean
 
 model = None
 doc2VecModel = None
@@ -96,25 +97,31 @@ def add_synonyms(word_list,limit):
   return flatten_list(all_synonyms)
 
 
-def get_prompts(keywords,l_bound,u_bound,n_prompts):
+def get_prompts(mode,keywords,l_bound,u_bound,n_prompts):
   keywords_vector = doc2VecModel.infer_vector(keywords)
   sims_to_keywords = doc2VecModel.dv.most_similar(keywords_vector, topn=100)
-  loosely_related_scores = []
-  for x in sims_to_keywords:
-    if l_bound < x[1] < u_bound:
-      loosely_related_scores.append(x)
-  random_chosen_scores = []
-  while len(random_chosen_scores) < n_prompts:
-    random_score = random.choice(loosely_related_scores)
-    if random_score not in random_chosen_scores:
-      random_chosen_scores.append(random_score)
+  if mode == "distant":
+    loosely_related_scores = []
+    for x in sims_to_keywords:
+      if l_bound < x[1] < u_bound:
+        loosely_related_scores.append(x)
+    random_chosen_scores = []
+    while len(random_chosen_scores) < n_prompts:
+      random_score = random.choice(loosely_related_scores)
+      if random_score not in random_chosen_scores:
+        random_chosen_scores.append(random_score)
+  elif mode == "close":
+    random_chosen_scores = sims_to_keywords[:n_prompts]
   prompts = []
+  similarities = []
   for score in random_chosen_scores:
-        promptText = PromptsDatabase.iloc[score[0]]['Summarized Text']
-        if len(promptText.split()) > 100:
-            promptText = ' '.join(promptText.split()[:100])
-        prompts.append(promptText)
-  return prompts
+    promptText = PromptsDatabase.iloc[score[0]]['Summarized Text']
+    if len(promptText.split()) > 100:
+        promptText = ' '.join(promptText.split()[:100])
+    prompts.append(promptText)
+    similarities.append(score[1])
+  return [mean(similarities),prompts]
+
 
 app = Flask(__name__)
 CORS(app)
@@ -127,8 +134,13 @@ def get_predictions():
             tokens = get_initial_query_keywords(text)
             keywords = add_synonyms(tokens,2)
             keywords = clean_string(' '.join(keywords))
-            print(keywords)
-            prompts = get_prompts(keywords,0.4,0.7,5)
+            choice = random.getrandbits(1)
+            print(choice)
+            if choice :
+              prompts = get_prompts("distant",keywords,0.4,0.5,5)
+            else :
+              prompts = get_prompts("close",keywords,0.4,0.5,5)
+            # prompts = [mean_similarity, prompts]
             data = {'prompts' : prompts}
             return data
         except Exception as e:
