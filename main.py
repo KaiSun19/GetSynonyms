@@ -112,6 +112,8 @@ def get_prompts(mode,keywords,l_bound,u_bound,n_prompts):
         random_chosen_scores.append(random_score)
   elif mode == "close":
     random_chosen_scores = sims_to_keywords[:n_prompts]
+  elif mode == 'control':
+    return [0,[" ", " ", " ", " ", " "]]
   prompts = []
   similarities = []
   for score in random_chosen_scores:
@@ -134,12 +136,14 @@ def get_predictions():
             tokens = get_initial_query_keywords(text)
             keywords = add_synonyms(tokens,2)
             keywords = clean_string(' '.join(keywords))
-            choice = random.getrandbits(1)
+            choice = random.randint(0,2)
             print(choice)
-            if choice :
+            if choice == 0 :
               prompts = get_prompts("distant",keywords,0.4,0.5,5)
-            else :
+            elif choice == 1 :
               prompts = get_prompts("close",keywords,0.4,0.5,5)
+            elif choice == 2 :
+               prompts = get_prompts("control",keywords,0.4,0.5,5)
             # prompts = [mean_similarity, prompts]
             data = {'prompts' : prompts}
             return data
@@ -188,4 +192,4 @@ if __name__ == '__main__':
     load_model()
     load_word2Vec()
     load_database()
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=8080, debug = True)
